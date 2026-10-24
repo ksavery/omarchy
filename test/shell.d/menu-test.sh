@@ -129,6 +129,19 @@ assert(
   /function matchesQuery\(entry, query\) \{\s*\n\s*return MenuModel\.matchesQuery\(entry, query, root\.isVisible\(entry\) && !root\.isDisabled\(entry\)\)/.test(menuQml),
   'menu search skips disabled rows, which belong to the submenu they sit in rather than a list of what you can do'
 )
+// The list height binding walks the model on every count change, so filling it
+// row by row is quadratic in the matches: with a thousand installed apps, one
+// keystroke took over half a second.
+assertEqual(
+  (menuQml.match(/displayModel\.append\(/g) || []).length,
+  (menuQml.match(/if \(rows\.length > 0\) displayModel\.append\(rows\)/g) || []).length,
+  'menu fills its rows in one append'
+)
+assertEqual(
+  (menuQml.match(/totals\.push\(total\)\n(\s*\/\/.*\n)*\s*if \(total > available\) break/g) || []).length,
+  2,
+  'menu stops measuring rows at the fold'
+)
 
 const entry = merged.items['style.theme']
 assert(menu.matchesQuery(entry, 'theme', true), 'menu matches labels and aliases')
