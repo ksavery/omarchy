@@ -95,6 +95,19 @@ Item {
     NumberAnimation { duration: Style.duration(140); easing.type: Easing.OutCubic }
   }
 
+  // Held down, the mark gives a little, so a click is felt as well as seen.
+  // Only the label and glyph shrink, never the button, so the hit area and
+  // the bar's layout hold still. A bar glyph is small, so it gives more than
+  // a panel button's 0.97, or nothing would show.
+  property real pressScale: root.pressable && mouseArea.pressed ? 0.9 : 1
+  Behavior on pressScale {
+    NumberAnimation {
+      duration: Style.duration(160)
+      easing.type: Easing.Bezier
+      easing.bezierCurve: Style.easeOut
+    }
+  }
+
   Text {
     id: label
     textFormat: Text.PlainText
@@ -112,6 +125,7 @@ Item {
     font.pixelSize: root.fontSize
     renderType: Text.NativeRendering
     rotation: root.textRotation
+    scale: root.pressScale
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
 
@@ -133,6 +147,7 @@ Item {
     height: Style.bar.iconCanvas
     x: (root.width - width) / 2
     y: (root.height - height) / 2
+    scale: root.pressScale
     sourceComponent: Component {
       OpticalGlyph {
         text: root.text
